@@ -17,6 +17,28 @@ interface MeetingInfo {
 
 type Status = "loading" | "form" | "success" | "duplicate" | "closed" | "notfound";
 
+/* ── Static layout components (outside main component — prevents remount/focus-loss) ── */
+function Header({ meetingName }: { meetingName?: string }) {
+  return (
+    <div className="bg-gov-800 text-white text-center py-5 px-4">
+      <div className="mx-auto mb-2 h-12 w-12 rounded-full bg-white/15 flex items-center justify-center font-bold">
+        QR
+      </div>
+      <h1 className="font-bold">Meeting Attendance</h1>
+      {meetingName && <p className="text-xs opacity-80 mt-0.5">{meetingName}</p>}
+    </div>
+  );
+}
+
+function Wrap({ meetingName, children }: { meetingName?: string; children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gov-50 to-gov-100 dark:from-slate-950 dark:to-slate-900">
+      <Header meetingName={meetingName} />
+      <div className="mx-auto max-w-md p-4 -mt-2">{children}</div>
+    </div>
+  );
+}
+
 export default function AttendanceFormPage() {
   const { meetingId } = useParams<{ meetingId: string }>();
   const [meeting, setMeeting] = useState<MeetingInfo | null>(null);
@@ -96,23 +118,6 @@ export default function AttendanceFormPage() {
     }
   }
 
-  const Header = () => (
-    <div className="bg-gov-800 text-white text-center py-5 px-4">
-      <div className="mx-auto mb-2 h-12 w-12 rounded-full bg-white/15 flex items-center justify-center font-bold">
-        QR
-      </div>
-      <h1 className="font-bold">Meeting Attendance</h1>
-      {meeting && <p className="text-xs opacity-80 mt-0.5">{meeting.name}</p>}
-    </div>
-  );
-
-  const Wrap = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen bg-gradient-to-b from-gov-50 to-gov-100 dark:from-slate-950 dark:to-slate-900">
-      <Header />
-      <div className="mx-auto max-w-md p-4 -mt-2">{children}</div>
-    </div>
-  );
-
   if (status === "loading")
     return (
       <Wrap>
@@ -133,7 +138,7 @@ export default function AttendanceFormPage() {
 
   if (status === "closed")
     return (
-      <Wrap>
+      <Wrap meetingName={meeting?.name}>
         <div className="card p-10 text-center">
           <div className="text-5xl mb-3">🔒</div>
           <h2 className="font-bold text-lg mb-2">Meeting Closed</h2>
@@ -144,7 +149,7 @@ export default function AttendanceFormPage() {
 
   if (status === "duplicate")
     return (
-      <Wrap>
+      <Wrap meetingName={meeting?.name}>
         <div className="card p-10 text-center">
           <div className="text-5xl mb-3">⚠️</div>
           <h2 className="font-bold text-lg mb-2">Already Registered</h2>
@@ -157,7 +162,7 @@ export default function AttendanceFormPage() {
 
   if (status === "success")
     return (
-      <Wrap>
+      <Wrap meetingName={meeting?.name}>
         <div className="card p-8 text-center">
           <div className="text-6xl mb-3">✅</div>
           <h2 className="font-bold text-xl text-emerald-700 dark:text-emerald-400 mb-1">
@@ -179,7 +184,7 @@ export default function AttendanceFormPage() {
     );
 
   return (
-    <Wrap>
+    <Wrap meetingName={meeting?.name}>
       <div className="card p-6">
         <div className="rounded-xl bg-gov-50 dark:bg-slate-800 border border-gov-100 dark:border-slate-700 px-4 py-3 mb-5 text-sm">
           <p className="font-semibold text-gov-800 dark:text-gov-100">{meeting?.name}</p>
